@@ -5,7 +5,7 @@ import ContactForm from './ContactForm'
 
 class ContactModal extends Component {
     render() {
-        let {contactData, handleSubmit, handleChange, show, handleClose} = this.props
+        let {contactData, contactErrors, handleSubmit, handleChange, show, handleClose} = this.props
         return (
             <Modal show={show} onHide={handleClose} animation={false}>
                 <Modal.Dialog>
@@ -21,7 +21,11 @@ class ContactModal extends Component {
                                 placeholder='First Name' 
                                 name='firstName'
                                 value={contactData.firstName}
-                                onChange={handleChange}/>
+                                onChange={handleChange}
+                                isInvalid={!!contactErrors.firstName}/>
+                                <Form.Control.Feedback type="invalid">
+                                  {contactErrors.firstName}
+                                </Form.Control.Feedback>
                             </Form.Group>
 
                             <Form.Group controlId='contactLastName'>
@@ -30,7 +34,11 @@ class ContactModal extends Component {
                                 placeholder='Last Name' 
                                 name='lastName'
                                 value={contactData.lastName}
-                                onChange={handleChange}/>
+                                onChange={handleChange}
+                                isInvalid={!!contactErrors.lastName}/>
+                                <Form.Control.Feedback type="invalid">
+                                  {contactErrors.lastName}
+                                </Form.Control.Feedback>
                             </Form.Group>
 
                             <Form.Group controlId='contactCompany'>
@@ -39,7 +47,11 @@ class ContactModal extends Component {
                                 placeholder='Company' 
                                 name='company'
                                 value={contactData.company}
-                                onChange={handleChange}/>
+                                onChange={handleChange}
+                                isInvalid={!!contactErrors.company}/>
+                                <Form.Control.Feedback type="invalid">
+                                  {contactErrors.company}
+                                </Form.Control.Feedback>
                             </Form.Group>
 
                             <Form.Group controlId='contactPhone'>
@@ -48,7 +60,15 @@ class ContactModal extends Component {
                                 placeholder='Phone Number' 
                                 name='phone'
                                 value={contactData.phone}
-                                onChange={handleChange}/>
+                                onChange={handleChange}
+                                pattern="[0-9]{3}-[0-9]{4}"
+                                isInvalid={!!contactErrors.phone}/>
+                                <Form.Control.Feedback type="invalid">
+                                  {contactErrors.phone}
+                                </Form.Control.Feedback>
+                                <Form.Text className="text-muted">
+                                    Format: 123-4567
+                                </Form.Text>
                             </Form.Group>
 
                             <Form.Group controlId='contactEmail'>
@@ -57,7 +77,14 @@ class ContactModal extends Component {
                                 placeholder='Email' 
                                 name='email'
                                 value={contactData.email}
-                                onChange={handleChange}/>
+                                onChange={handleChange}
+                                isInvalid={!!contactErrors.email}/>
+                                <Form.Control.Feedback type="invalid">
+                                  {contactErrors.email}
+                                </Form.Control.Feedback>
+                                <Form.Text className="text-muted">
+                                    Example Format: ada@lovelace.com
+                                </Form.Text>
                             </Form.Group>
                         </Form>
                     </Modal.Body>

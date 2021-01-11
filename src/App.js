@@ -39,7 +39,15 @@ class App extends Component {
         'email': 'prez@badnews.us'
       },
 
-      addFormsErrors: {
+      addFormErrors: {
+        firstName : '',
+        lastName : '',
+        company : '',
+        phone : '',
+        email : ''
+      },
+
+      editFormErrors : {
         firstName : '',
         lastName : '',
         company : '',
@@ -92,6 +100,13 @@ class App extends Component {
     console.log(`Submitting edit for contact id ${contactId}`)
     console.log(this.state.editContactData)
 
+    let validationErrors = this.validateContact(this.state.editContactData)
+    if(!validationErrors.isValid) {
+      console.log('Edited contact is invalid. Reporting errors')
+      this.setState({editFormErrors : validationErrors})
+      return
+    }
+
     fetch(SERVICE_URL + '/contact/' + contactId, {
       method: 'PUT',
       headers: {
@@ -102,7 +117,7 @@ class App extends Component {
     .then(response => response.json())
     .then(data => {
       console.log('Success:', data);
-      this.setState({showEditModal : false})
+      this.setState({showEditModal : false, editFormErrors : validationErrors})
       this.loadContactData();
     })
     .catch((error) => {
@@ -197,7 +212,7 @@ class App extends Component {
     let validationErrors = this.validateContact(this.state.newContactData)
     if(!validationErrors.isValid) {
       console.log("New contact is invalid Reporting errors", validationErrors)
-      this.setState({addFormsErrors : validationErrors})
+      this.setState({addFormErrors : validationErrors})
       return
     }
 
@@ -213,7 +228,7 @@ class App extends Component {
       console.log('Add Contact - Success:', data);
       this.setState({
         newContactData: {firstName: '', lastName: '', company: '', phone: '', email: ''}, 
-        addFormsErrors : validationErrors})
+        addFormErrors : validationErrors})
       this.loadContactData();
     })
     .catch((error) => {
@@ -259,7 +274,7 @@ class App extends Component {
             handleSubmit={this.handleAppFormSubmit}
             handleChange={this.handleAddFormChange}
             contactData={this.state.newContactData}
-            contactErrors={this.state.addFormsErrors}/>
+            contactErrors={this.state.addFormErrors}/>
           </Col>
         </Row>
         <ContactModal 
@@ -267,7 +282,8 @@ class App extends Component {
         handleSubmit={this.handleEditFormSubmit}
         handleChange={this.handleEditFormChange}
         handleClose={this.handleEditModalClose}
-        contactData={this.state.editContactData}/>
+        contactData={this.state.editContactData}
+        contactErrors={this.state.editFormErrors}/>
       </Container>
     );
   }
