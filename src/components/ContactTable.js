@@ -17,7 +17,7 @@ const ContactTableHeader = () => {
     );
 }
 
-const ContactTableRow = ({ contact }) => {
+const ContactTableRow = ({ contact, toggleEdit }) => {
     return (
         <tr>
             <td>{contact.contactId}</td>
@@ -26,7 +26,7 @@ const ContactTableRow = ({ contact }) => {
             <td>{contact.company}</td>
             <td>{contact.phone}</td>
             <td>{contact.email}</td>
-            <td><Button>Edit</Button></td>
+            <td><Button onClick={toggleEdit} value={contact.contactId}>Edit</Button></td>
             <td><Button>Delete</Button></td>
         </tr>
     );
@@ -67,7 +67,7 @@ class ContactTable extends Component {
                 </thead>
                 <tbody>
                 {this.props.contacts.map((contact, i) => {
-                    return <ContactTableRow contact={contact} key={i} />
+                    return <ContactTableRow contact={contact} key={i} toggleEdit={this.props.handleEdit}/>
                 })}
                 </tbody>
             </Table>
