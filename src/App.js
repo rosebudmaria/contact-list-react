@@ -37,6 +37,14 @@ class App extends Component {
         'company': 'Heart of Gold',
         'phone': '000-0000',
         'email': 'prez@badnews.us'
+      },
+
+      addFormsErrors: {
+        firstName : '',
+        lastName : '',
+        company : '',
+        phone : '',
+        email : ''
       }
   }
 
@@ -77,6 +85,7 @@ class App extends Component {
     }
   }
 
+
   handleEditFormSubmit = (event) => {
     if(event) event.preventDefault();
     let contactId = event.target.value;
@@ -89,11 +98,27 @@ class App extends Component {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(this.state.editContactData),
-    }),
-    .then(respone => respone.json())
+    })
+    .then(response => response.json())
     .then(data => {
       console.log('Success:', data);
       this.setState({showEditModal : false})
+      this.loadContactData();
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+  }
+
+  handleDeleteContact = (event) => {
+    if (event) event.preventDefault();
+    let contactId = event.target.value;
+    console.log(`Submitting delete for contact id ${contactId}`)
+
+    fetch(SERVICE_URL + '/contact/' + contactId, {
+      method: 'DELETE',
+    })
+    .then(data => {
       this.loadContactData();
     })
     .catch((error) => {
@@ -118,9 +143,63 @@ class App extends Component {
     }
   }
 
+  validateContact = (contact) => {
+    let errors = {
+      firstName: '',
+      lastName: '',
+      company: '',
+      phone: '',
+      email: '',
+      isValid: true
+    }
+     let isInvalid = false;
+
+     if(!contact.firstName) {
+       errors.firstName = "Please enter a first name"
+       errors.isValid = false
+     }
+
+     if(!contact.lastName) {
+      errors.lastName = "Please enter a last name."
+      errors.isValid = false;
+    }
+
+    if(!contact.company){
+      errors.company = "Please enter the company name."
+      errors.isValid = false;
+    }
+
+    if(!contact.phone && !contact.email){
+      errors.phone = "Please enter a phone or email contact (or both)."
+      errors.email = "Please enter a phone or email contact (or both)."
+      errors.isValid = false;
+    }
+
+    let phonePattern = "[0-9]{3}-[0-9]{4}";
+    if(contact.phone && !contact.phone.match(phonePattern)){
+      errors.phone = "Please match the expected pattern."
+      errors.isValid = false;
+    }
+
+    let emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+    if(contact.email && !contact.email.match(emailPattern)){
+      errors.email = "Please match the expected pattern."
+      errors.isValid = false;
+    }
+
+    return errors;
+  }
+
   handleAddFormSubmit = (event) => {
     console.log("Adding contact!")
     if (event) event.preventDefault();
+
+    let validationErrors = this.validateContact(this.state.newContactData)
+    if(!validationErrors.isValid) {
+      console.log("New contact is invalid Reporting errors", validationErrors)
+      this.setState({addFormsErrors : validationErrors})
+      return
+    }
 
     fetch(SERVICE_URL + '/contact/', {
       method: 'POST',
@@ -132,12 +211,13 @@ class App extends Component {
     .then(response => Response.json())
     .then(data => {
       console.log('Add Contact - Success:', data);
-      this.setState({newContactData: {firstName: '', lastName: '', company: '', phone: '', email: ''}})
+      this.setState({
+        newContactData: {firstName: '', lastName: '', company: '', phone: '', email: ''}, 
+        addFormsErrors : validationErrors})
       this.loadContactData();
     })
     .catch((error) => {
       console.log('Add Contact - Error:')
-      console.log(error)
     });
   }
 
@@ -170,14 +250,16 @@ class App extends Component {
             <h2>My Contacts</h2>
             <ContactTable 
             contacts={this.state.contactData}
-            handleEdit={this.handleEditModalOpen}/>
+            handleEdit={this.handleEditModalOpen}
+            handleDelete={this.handleDeleteContact}/>
           </Col>
           <Col sm={4}>
             <h2>Add New Contact</h2>
             <ContactForm 
             handleSubmit={this.handleAppFormSubmit}
             handleChange={this.handleAddFormChange}
-            contactData={this.state.newContactData}/>
+            contactData={this.state.newContactData}
+            contactErrors={this.state.addFormsErrors}/>
           </Col>
         </Row>
         <ContactModal 
